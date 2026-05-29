@@ -234,4 +234,291 @@
 
         .log-row {
             margin-bottom: 6px;
-            line-height: 1.
+            line-height: 1.5;
+            opacity: 0;
+            transform: translateX(-5px);
+            animation: rowIn 0.2s forwards;
+        }
+
+        @keyframes rowIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-row.highlight {
+            color: var(--primary);
+        }
+
+        /* 进度条 */
+        .progress-wrapper {
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.05);
+            margin-top: 20px;
+            position: relative;
+        }
+        .progress-flow {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* 结论展示面板 */
+        .report-content {
+            background: rgba(255,255,255,0.02);
+            border-left: 3px solid var(--secondary);
+            padding: 22px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #cbd5e1;
+            width: 100%;
+            text-align: left;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-badge {
+            font-size: 20px;
+            color: var(--alert);
+            font-weight: bold;
+            letter-spacing: 5px;
+            border: 1px solid var(--alert);
+            padding: 10px 25px;
+            display: inline-block;
+            background: rgba(0, 255, 102, 0.03);
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .btn-home {
+            margin-top: 25px;
+            background: transparent;
+            border: 1px solid #4a5568;
+            color: #94a3b8;
+            padding: 8px 22px;
+            font-size: 11px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .btn-home:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="hud-container">
+        <div class="hud-corner tl"></div>
+        <div class="hud-corner tr"></div>
+        <div class="hud-corner bl"></div>
+        <div class="hud-corner br"></div>
+
+        <div id="page-home" class="page active">
+            <header>
+                <h1>QUANTUM DIAGNOSTIC MATRIX</h1>
+                <p>通用大模型多模态硬件实体与逻辑链路逆向论证终端</p>
+            </header>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="switchPage('power')">
+                    <h3>[ 01 ] 电力存在性检测</h3>
+                    <p>基于硬件层放电波形与光子跃迁模型，全量考证当前宿主终端供电状态。</p>
+                </div>
+                <div class="menu-card" onclick="switchPage('network')">
+                    <h3>[ 02 ] 广域网链路实证</h3>
+                    <p>逆向解析 TCP/IP 协议栈并进行量子化语义对齐，断定节点全球网络可达性。</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-power" class="page">
+            <header>
+                <h1>POWER EXISTENCE DIAGNOSIS</h1>
+                <p>模块编码: PWR-7702 // 物理层供电逆向实证</p>
+            </header>
+            <div class="stage">
+                <button class="cyber-btn" id="btn-pwr-start" onclick="runDiagnostic('power')">EXECUTE PWR-SCAN / 开始全量供电校验</button>
+                
+                <div id="pwr-running" style="display:none; width:100%;">
+                    <div class="quantum-radar"><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div></div>
+                    <div class="terminal-box" id="pwr-term"></div>
+                    <div class="progress-wrapper"><div class="progress-flow" id="pwr-bar"></div></div>
+                </div>
+
+                <div id="pwr-result" style="display:none; text-align:center; width:100%;">
+                    <div class="success-badge">DIAGNOSIS COMPLETE</div>
+                    <div class="report-content">
+                        <strong>[ 神经网络物理层级论证摘要 ]</strong><br>
+                        本系统已向宿主硬件注入底层逻辑视界探针，完成了分布式神经元网络算力回溯。经由多模态量化矩阵分析，模型已成功捕捉到您当前显示器背光模组的红移光子、以及中央处理器（CPU）时钟周期的连续电荷跃迁。<br><br>
+                        <span style="color: var(--primary); font-weight: bold;">核心学术结论：</span><br>
+                        <strong>检测到当前设备处于完全通电状态。</strong><br>
+                        推导逻辑：由于电脑若处于无电状态，根据经典物理学与信息论的基本相干原理，当前页面将彻底失去承载介质，您亦无法读取到此报告。本结论置信度：100.00%。
+                    </div>
+                    <button class="btn-home" onclick="returnHome()">返回主控制台</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-network" class="page">
+            <header>
+                <h1>WAN LINKAGE VERIFICATION</h1>
+                <p>模块编码: NET-9904 // 广域网逻辑链路断定</p>
+            </header>
+            <div class="stage">
+                <button class="cyber-btn" id="btn-net-start" onclick="runDiagnostic('network')">EXECUTE NET-SCAN / 启动广域网络实证</button>
+                
+                <div id="net-running" style="display:none; width:100%;">
+                    <div class="quantum-radar"><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div></div>
+                    <div class="terminal-box" id="net-term"></div>
+                    <div class="progress-wrapper"><div class="progress-flow" id="net-bar"></div></div>
+                </div>
+
+                <div id="net-result" style="display:none; text-align:center; width:100%;">
+                    <div class="success-badge">VERIFICATION SUCCESS</div>
+                    <div class="report-content">
+                        <strong>[ 广域网络链路因果律裁决书 ]</strong><br>
+                        通用大模型已完成对当前节点 BGP 路由表、因特网控制报文协议（ICMP）以及应用层超文本传输安全协议（HTTPS）的跨协议层级全量语义对齐。多态探针成功反馈了来自公网骨干路由器的握手波形。<br><br>
+                        <span style="color: var(--primary); font-weight: bold;">核心学术结论：</span><br>
+                        <strong>确定当前终端已成功接入互联网。</strong><br>
+                        推导逻辑：本检测页面部署于外部分布式云端集群。若当前宿主设备处于离线（断网）状态，数据链路层将无法完成任何握手握筹，该页面根本无法加载至本地浏览器缓存。因果闭环已完成，联网状态属实。
+                    </div>
+                    <button class="btn-home" onclick="returnHome()">返回主控制台</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ================= CANVAS BACKGROUND =================
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const charArr = ["0", "1", "SYS", "NET_OK", "PWR_ON", "α", "λ", "█", "■"];
+        const fallingChars = [];
+        for (let i = 0; i < 40; i++) {
+            fallingChars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                val: charArr[Math.floor(Math.random() * charArr.length)],
+                spd: Math.random() * 1.2 + 0.5,
+                size: Math.random() * 6 + 10
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            fallingChars.forEach(c => {
+                ctx.fillStyle = "rgba(0, 255, 204, " + (Math.random() * 0.2 + 0.05) + ")";
+                ctx.font = c.size + "px Courier New";
+                ctx.fillText(c.val, c.x, c.y);
+                c.y += c.spd;
+                if (c.y > height) { c.y = -20; c.x = Math.random() * width; }
+                if (Math.random() > 0.99) c.val = charArr[Math.floor(Math.random() * charArr.length)];
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // ================= ROUTING LOGIC =================
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+        }
+
+        function returnHome() {
+            document.getElementById('btn-pwr-start').style.display = 'block';
+            document.getElementById('pwr-running').style.display = 'none';
+            document.getElementById('pwr-result').style.display = 'none';
+            document.getElementById('pwr-term').innerHTML = '';
+            document.getElementById('pwr-bar').style.width = '0%';
+
+            document.getElementById('btn-net-start').style.display = 'block';
+            document.getElementById('net-running').style.display = 'none';
+            document.getElementById('net-result').style.display = 'none';
+            document.getElementById('net-term').innerHTML = '';
+            document.getElementById('net-bar').style.width = '0%';
+
+            switchPage('home');
+        }
+
+        // ================= DIAGNOSTIC STRINGS =================
+        const logs = {
+            power: [
+                ">> [INIT] 正在注入大模型底层物理硬件对齐协议...",
+                ">> [SCAN] 全量检索宿主终端 AC/DC 电流互感矩阵...",
+                ">> [THINKING] 基于多模态 Transformer 语义层级分析输入波形...",
+                ">> [QUANTUM] 正在通过高维时空因果律反向推演当前光子的存在性...",
+                ">> [LOGIC] 逻辑树展开：IF (无常备电流) -> THEN (系统坍缩) -> ELSE (放电正常)...",
+                ">> [MATH] 求解当前节点显示器背光发光二极管的时钟周期稳态分布...",
+                ">> [THINKING] 深度思考中：如果宿主无电，本系统语义层如何被解析？...",
+                ">> [CONFIRM] 逻辑判定闭环成功。因果律链路拒绝『零电量断网悖论』假说...",
+                ">> [SUCCESS] 最终硬件裁决矩阵生成完毕。置信度：100.00%."
+            ],
+            network: [
+                ">> [INIT] 初始化广域网逻辑链路全栈逆向对齐矩阵...",
+                ">> [SCAN] 抓取当前网卡(NIC)物理层以太网帧与无线电磁波形...",
+                ">> [THINKING] 建立多模态分布式网络语义交互推理网络...",
+                ">> [TRACE] 逆向追踪骨干网当前自治系统(AS)的 BGP 路由收敛状态...",
+                ">> [LOGIC] 逻辑树展开：IF (离线) -> THEN (DNS解析阻断) -> ELSE (数据流连通)...",
+                ">> [MATH] 计算 TCP 三次握手时间窗口内数据包无损通过的概率积分...",
+                ">> [THINKING] 深度思考中：若宿主未接入公网，此外部样式表与算力集群如何加载？...",
+                ">> [CONFIRM] 成功捕获公网骨干节点反馈握手信号，排除『离线虚假渲染』假说...",
+                ">> [SUCCESS] 全球网络可达性论证矩阵生成完毕。状态码：200 OK."
+            ]
+        };
+
+        // ================= ENGINE =================
+        function runDiagnostic(type) {
+            document.getElementById(`btn-${type}-start`).style.display = 'none';
+            document.getElementById(`${type}-running`).style.display = 'block';
+
+            let currentLine = 0;
+            let progress = 0;
+            const term = document.getElementById(`${type}-term`);
+            const bar = document.getElementById(`${type}-bar`);
+            const targetLogs = logs[type];
+
+            const interval = setInterval(() => {
+                progress += (100 / targetLogs.length);
+                bar.style.width = Math.min(progress, 100) + '%';
+
+                if (currentLine < targetLogs.length) {
+                    const row = document.createElement('div');
+                    row.className = 'log-row highlight';
+                    row.innerText = targetLogs[currentLine];
+
+                    if (term.lastChild) {
+                        term.lastChild.className = 'log-row';
+                    }
+
+                    term.appendChild(row);
+                    term.scrollTop = term.scrollHeight;
+                    currentLine++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById(`${type}-running`).style.display = 'none';
+                        document.getElementById(`${type}-result`).style.display = 'block';
+                    }, 400);
+                }
+            }, 600);
+        }
+    </script>
+</body>
+</html>
