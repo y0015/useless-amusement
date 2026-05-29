@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ QUANTUM DIAGNOSTIC MATRIX SYSTEM v3.6</title>
+    <title>⚡ QUANTUM DIAGNOSTIC MATRIX SYSTEM v3.8</title>
     <style>
         :root {
             --primary: #00ffcc;
@@ -43,7 +43,7 @@
             height: 100%;
             z-index: 1;
             opacity: 0.5;
-            pointer-events: none; /* 防止画布拦截鼠标点击 */
+            pointer-events: none;
         }
 
         /* CRT屏幕扫描线效果 */
@@ -66,7 +66,7 @@
             padding: 40px;
             border-radius: 8px;
             position: relative;
-            z-index: 5; /* 提升层级，确保在最前 */
+            z-index: 5;
             backdrop-filter: blur(15px);
             border: 1px solid rgba(0, 255, 204, 0.3);
             box-shadow: 0 0 40px rgba(0, 119, 255, 0.15), inset 0 0 20px rgba(0, 255, 204, 0.1);
@@ -345,15 +345,15 @@
                 <p>模块编码: PWR-7702 // 物理层供电逆向实证</p>
             </header>
             <div class="stage">
-                <button class="cyber-btn" id="btn-pwr-start" onclick="runDiagnostic('power')">EXECUTE PWR-SCAN / 开始全量供电校验</button>
+                <button class="cyber-btn" id="btn-power-start" onclick="runDiagnostic('power')">EXECUTE PWR-SCAN / 开始全量供电校验</button>
                 
-                <div id="pwr-running" style="display:none; width:100%;">
+                <div id="power-running" style="display:none; width:100%;">
                     <div class="quantum-radar"><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div></div>
-                    <div class="terminal-box" id="pwr-term"></div>
-                    <div class="progress-wrapper"><div class="progress-flow" id="pwr-bar"></div></div>
+                    <div class="terminal-box" id="power-term"></div>
+                    <div class="progress-wrapper"><div class="progress-flow" id="power-bar"></div></div>
                 </div>
 
-                <div id="pwr-result" style="display:none; text-align:center; width:100%;">
+                <div id="power-result" style="display:none; text-align:center; width:100%;">
                     <div class="success-badge">DIAGNOSIS COMPLETE</div>
                     <div class="report-content">
                         <strong>[ 神经网络物理层级论证摘要 ]</strong><br>
@@ -373,22 +373,22 @@
                 <p>模块编码: NET-9904 // 广域网逻辑链路断定</p>
             </header>
             <div class="stage">
-                <button class="cyber-btn" id="btn-net-start" onclick="runDiagnostic('network')">EXECUTE NET-SCAN / 启动广域网络实证</button>
+                <button class="cyber-btn" id="btn-network-start" onclick="runDiagnostic('network')">EXECUTE NET-SCAN / 启动广域网络实证</button>
                 
-                <div id="net-running" style="display:none; width:100%;">
+                <div id="network-running" style="display:none; width:100%;">
                     <div class="quantum-radar"><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div><div class="radar-bar"></div></div>
-                    <div class="terminal-box" id="net-term"></div>
-                    <div class="progress-wrapper"><div class="progress-flow" id="net-bar"></div></div>
+                    <div class="terminal-box" id="network-term"></div>
+                    <div class="progress-wrapper"><div class="progress-flow" id="network-bar"></div></div>
                 </div>
 
-                <div id="net-result" style="display:none; text-align:center; width:100%;">
+                <div id="network-result" style="display:none; text-align:center; width:100%;">
                     <div class="success-badge">VERIFICATION SUCCESS</div>
                     <div class="report-content">
                         <strong>[ 广域网络链路因果律裁决书 ]</strong><br>
                         通用大模型已完成对当前节点 BGP 路由表、因特网控制报文协议（ICMP）以及应用层超文本传输安全协议（HTTPS）的跨协议层级全量语义对齐。多态探针成功反馈了来自公网骨干路由器的握手波形。<br><br>
                         <span style="color: var(--primary); font-weight: bold;">核心学术结论：</span><br>
                         <strong>确定当前终端已成功接入互联网。</strong><br>
-                        推导逻辑：本检测页面部署于外部分布式云端集群。若当前宿主设备处于离线（断网）状态，数据链路层将无法完成任何握手握筹，该页面根本无法加载至本地浏览器缓存。因果闭环已完成，联网状态属实。
+                        推导逻辑：本检测页面部署于外部分布式云端集群。若当前宿主设备处于离线（断网）状态，数据链路层将无法完成任何握手，该页面根本无法加载至本地浏览器缓存。因果闭环已完成，联网状态属实。
                     </div>
                     <button class="btn-home" onclick="returnHome()">返回主控制台</button>
                 </div>
@@ -436,23 +436,27 @@
         animate();
 
         // ================= ROUTING LOGIC =================
+        let activeInterval = null; 
+
         function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
         }
 
         function returnHome() {
-            document.getElementById('btn-pwr-start').style.display = 'block';
-            document.getElementById('pwr-running').style.display = 'none';
-            document.getElementById('pwr-result').style.display = 'none';
-            document.getElementById('pwr-term').innerHTML = '';
-            document.getElementById('pwr-bar').style.width = '0%';
+            if(activeInterval) clearInterval(activeInterval);
+            
+            document.getElementById('btn-power-start').style.display = 'block';
+            document.getElementById('power-running').style.display = 'none';
+            document.getElementById('power-result').style.display = 'none';
+            document.getElementById('power-term').innerHTML = '';
+            document.getElementById('power-bar').style.width = '0%';
 
-            document.getElementById('btn-net-start').style.display = 'block';
-            document.getElementById('net-running').style.display = 'none';
-            document.getElementById('net-result').style.display = 'none';
-            document.getElementById('net-term').innerHTML = '';
-            document.getElementById('net-bar').style.width = '0%';
+            document.getElementById('btn-network-start').style.display = 'block';
+            document.getElementById('network-running').style.display = 'none';
+            document.getElementById('network-result').style.display = 'none';
+            document.getElementById('network-term').innerHTML = '';
+            document.getElementById('network-bar').style.width = '0%';
 
             switchPage('home');
         }
@@ -485,36 +489,46 @@
 
         // ================= ENGINE =================
         function runDiagnostic(type) {
-            document.getElementById(`btn-${type}-start`).style.display = 'none';
-            document.getElementById(`${type}-running`).style.display = 'block';
+            if(activeInterval) clearInterval(activeInterval);
+
+            // 直接精确定位，不再采用动态字符串拼接，完全避开 null 隐患
+            const btnEl = document.getElementById('btn-' + type + '-start');
+            const runEl = document.getElementById(type + '-running');
+            const termEl = document.getElementById(type + '-term');
+            const barEl = document.getElementById(type + '-bar');
+            const resEl = document.getElementById(type + '-result');
+
+            if(btnEl) btnEl.style.display = 'none';
+            if(runEl) runEl.style.display = 'block';
+            if(termEl) termEl.innerHTML = '';
 
             let currentLine = 0;
             let progress = 0;
-            const term = document.getElementById(`${type}-term`);
-            const bar = document.getElementById(`${type}-bar`);
             const targetLogs = logs[type];
 
-            const interval = setInterval(() => {
+            activeInterval = setInterval(() => {
                 progress += (100 / targetLogs.length);
-                bar.style.width = Math.min(progress, 100) + '%';
+                if(barEl) barEl.style.width = Math.min(progress, 100) + '%';
 
                 if (currentLine < targetLogs.length) {
                     const row = document.createElement('div');
                     row.className = 'log-row highlight';
                     row.innerText = targetLogs[currentLine];
 
-                    if (term.lastChild) {
-                        term.lastChild.className = 'log-row';
+                    if (termEl && termEl.lastElementChild) {
+                        termEl.lastElementChild.className = 'log-row';
                     }
 
-                    term.appendChild(row);
-                    term.scrollTop = term.scrollHeight;
+                    if(termEl) {
+                        termEl.appendChild(row);
+                        termEl.scrollTop = termEl.scrollHeight;
+                    }
                     currentLine++;
                 } else {
-                    clearInterval(interval);
+                    clearInterval(activeInterval);
                     setTimeout(() => {
-                        document.getElementById(`${type}-running`).style.display = 'none';
-                        document.getElementById(`${type}-result`).style.display = 'block';
+                        if(runEl) runEl.style.display = 'none';
+                        if(resEl) resEl.style.display = 'block';
                     }, 400);
                 }
             }, 600);
